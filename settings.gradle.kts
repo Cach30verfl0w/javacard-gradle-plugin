@@ -1,5 +1,6 @@
 rootProject.name = "javacard-gradle-plugin"
 include(":javacard-gradle-plugin")
+includeBuild("examples")
 
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
