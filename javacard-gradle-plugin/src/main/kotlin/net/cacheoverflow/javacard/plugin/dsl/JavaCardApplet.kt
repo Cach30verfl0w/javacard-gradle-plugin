@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package net.cacheoverflow.javacard.plugin
+package net.cacheoverflow.javacard.plugin.dsl
 
-import org.gradle.api.Project
-import org.gradle.api.model.ObjectFactory
-import javax.inject.Inject
+import org.gradle.api.Named
+import org.gradle.api.provider.Property
 
 /**
  * @author Cedric Hammes
  * @since  04/07/2026
  */
-abstract class JavaCardExtension @Inject constructor(project: Project) {
-    private val objects: ObjectFactory = project.objects
+abstract class JavaCardApplet : Named {
+    abstract val appletId: Property<Int>
+
+    init {
+        appletId.finalizeValueOnRead()
+    }
 }

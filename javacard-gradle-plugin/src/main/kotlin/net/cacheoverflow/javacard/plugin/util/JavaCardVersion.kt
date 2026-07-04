@@ -16,21 +16,23 @@
 
 package net.cacheoverflow.javacard.plugin.util
 
-import org.gradle.api.Action
-import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionContainer
-import org.gradle.api.tasks.TaskContainer
-import org.gradle.api.tasks.TaskProvider
-
 /**
  * @author Cedric Hammes
  * @since  04/07/2026
  */
-internal inline fun <reified T : Any> ExtensionContainer.create(name: String): T = this.create(name, T::class.java)
+enum class JavaCardVersion(private val version: String) {
+    VERSION_304("3.0.4"),
+    VERSION_305("3.0.5"),
+    VERSION_306("3.0.6"),
+    VERSION_310("3.1.0"),
+    VERSION_320("3.2.0");
 
-/**
- * @author Cedric Hammes
- * @since  04/07/2026
- */
-internal inline fun <reified T : Task> TaskContainer.register(name: String, action: Action<T>): TaskProvider<T> =
-    register(name, T::class.java, action)
+    override fun toString(): String = version
+
+    companion object {
+        @JvmStatic
+        fun fromString(value: String): JavaCardVersion =
+            JavaCardVersion.entries.firstOrNull { it.version == value }
+                ?: throw IllegalArgumentException("Unrecognized or unsupported Java Card API version: $value")
+    }
+}

@@ -22,6 +22,11 @@ plugins {
 group = property("project.group").toString()
 version = libs.versions.javaCardGradle.toString()
 
+dependencies {
+    compileOnly(gradleApi())
+    implementation(kotlin("stdlib"))
+}
+
 gradlePlugin {
     plugins {
         create(property("project.plugin.id").toString()) {

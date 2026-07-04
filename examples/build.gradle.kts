@@ -1,3 +1,8 @@
+import net.cacheoverflow.javacard.plugin.util.JavaCardVersion
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.stream.Collectors
+
 /*
  * Copyright 2026 Cedric Hammes <contact@cach30verfl0w.net>
  *
@@ -15,10 +20,29 @@
  */
 
 plugins {
-    alias(libs.plugins.javaCardGradle)
     id("java")
+    alias(libs.plugins.javaCardGradle)
+}
+
+group = "net.cacheoverflow.javacard.example"
+version = "1.0"
+
+dependencies {
+    val sdkFolder = Paths.get(layout.projectDirectory.dir("sdks/jc320v26.0_kit").asFile.absolutePath)
+    for (file in Files.walk(sdkFolder).collect(Collectors.toList())) {
+        compileOnly(files(file.toAbsolutePath().toString()))
+    }
 }
 
 javaCard {
+    cardVersion.set(JavaCardVersion.VERSION_304)
+    namespace.set("net.cacheoverflow.javacard.example")
+    appletId.set("0x01:0x02:0x03:0x04:0x05:0x06")
+    sdkFolder.set(layout.projectDirectory.dir("sdks/jc320v26.0_kit"))
 
+    applets {
+        create("TestApplet") {
+            appletId.set(0x00)
+        }
+    }
 }

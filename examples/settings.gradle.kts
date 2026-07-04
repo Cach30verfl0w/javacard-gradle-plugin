@@ -1,4 +1,4 @@
-rootProject.name = "javacard-gradle-extensions"
+rootProject.name = "javacard-gradle-examples"
 
 pluginManagement {
     includeBuild("../")

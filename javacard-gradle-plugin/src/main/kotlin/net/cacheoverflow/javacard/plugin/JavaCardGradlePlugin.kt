@@ -16,16 +16,82 @@
 
 package net.cacheoverflow.javacard.plugin
 
+import net.cacheoverflow.javacard.plugin.dsl.JavaCardExtension
+import net.cacheoverflow.javacard.plugin.task.sdk.JavaCardCompileAppletTask
+import net.cacheoverflow.javacard.plugin.task.sdk.JavaCardCreateConfigTask
 import net.cacheoverflow.javacard.plugin.util.create
+import net.cacheoverflow.javacard.plugin.util.register
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.internal.extensions.core.serviceOf
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 
+/**
+ * @author Cedric Hammes
+ * @since  04/07/2026
+ */
 abstract class JavaCardGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val extension: JavaCardExtension = project.extensions.create(EXTENSION_NAME)
+        if (!project.pluginManager.hasPlugin("java")) {
+            // TODO: Inject name with compile-time generated class containing information?
+            throw GradleException("'JavaCard Gradle Plugin' requires the 'java' plugin to be applied.")
+        }
+
+        val toolchainService = project.serviceOf<JavaToolchainService>()
+        val mainSourceSet = project.extensions.getByType(SourceSetContainer::class.java).named("main")
+        val extension = project.extensions.create<JavaCardExtension>(EXT_NAME).also { extension ->
+            extension.toolLauncher.convention(toolchainService.launcherFor {
+                it.languageVersion.set(JavaLanguageVersion.of(17))
+            })
+            extension.javaCompiler.convention(toolchainService.compilerFor {
+                it.languageVersion.set(JavaLanguageVersion.of(17))
+            })
+        }
+
+        // Define the tasks.
+        val appletOutputFolder = project.layout.buildDirectory.dir("applet-output")
+        val appletConfigFile = project.layout.buildDirectory.file("applet-config.conf")
+        val createAppletConfigTask = project.tasks.register<JavaCardCreateConfigTask>("createAppletConfig") { spec ->
+            spec.group = SDK_TASK_GROUP_ID
+            spec.description = "Build the config for the Java Card SDK converter"
+
+            spec.dependsOn(project.tasks.withType(JavaCompile::class.java))
+            spec.classesFolder.convention(mainSourceSet.map { sourceSet -> sourceSet.java.classesDirectory.get() })
+            spec.outputFolder.convention(appletOutputFolder.map { it.asFile.relativeTo(project.projectDir).path })
+            spec.configFile.convention(appletConfigFile)
+        }
+
+        @Suppress("UnstableApiUsage")
+        val compileAppletTask = project.tasks.register<JavaCardCompileAppletTask>("compileApplet") { spec ->
+            spec.group = SDK_TASK_GROUP_ID
+            spec.description = "Convert the compiled Java source code into an applet"
+
+            spec.dependsOn(createAppletConfigTask, project.tasks.withType(JavaCompile::class.java))
+            spec.inputFiles.convention(mainSourceSet.map { sources -> sources.allSource.sourceDirectories })
+            spec.appletConfigFile.convention(appletConfigFile)
+            spec.outputFolder.convention(appletOutputFolder)
+        }
+
+        project.afterEvaluate {
+            project.tasks.named(mainSourceSet.get().compileJavaTaskName, JavaCompile::class.java) { compileTask ->
+                compileTask.javaCompiler.set(extension.javaCompiler)
+                compileTask.options.compilerArgs.add("-Xlint:-options")
+                compileTask.sourceCompatibility = "1.7"
+                compileTask.targetCompatibility = "1.7"
+            }
+        }
     }
 
     companion object {
-        const val EXTENSION_NAME: String = "javaCard"
+        const val EXT_NAME: String = "javaCard"
+        const val SDK_TASK_GROUP_ID = "javacard sdk"
+
+        const val TOOLS_PATH_ENV_VAR: String = "JC_HOME"
+        const val TOOLS_PATH_PROPERTY: String = "javacard.sdk"
     }
 }
