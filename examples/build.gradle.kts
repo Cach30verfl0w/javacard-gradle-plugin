@@ -15,7 +15,8 @@
  */
 
 plugins {
-    id("net.cacheoverflow.gradle.javacard").version("1.0.0")
+    alias(libs.plugins.javaCardGradle)
+    id("java")
 }
 
 javaCard {

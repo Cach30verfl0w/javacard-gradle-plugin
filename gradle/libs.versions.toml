@@ -4,3 +4,4 @@ kotlin = "2.4.0" # https://github.com/JetBrains/kotlin/releases
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+javaCardGradle = { id = "net.cacheoverflow.gradle.javacard", version.ref = "javaCardGradle" }
