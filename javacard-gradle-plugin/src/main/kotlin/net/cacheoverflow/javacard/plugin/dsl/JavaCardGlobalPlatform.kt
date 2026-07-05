@@ -16,8 +16,18 @@
 
 package net.cacheoverflow.javacard.plugin.dsl
 
+import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
+import javax.inject.Inject
 
-interface JavaCardGlobalPlatform {
-    val executableFile: RegularFileProperty
+/**
+ * @author Cedric Hammes
+ * @since  05/07/2026
+ */
+abstract class JavaCardGlobalPlatform @Inject constructor(project: Project) {
+    abstract val executableFile: RegularFileProperty
+
+    init {
+        executableFile.convention(project.layout.buildDirectory.file("general-platform.jar")).finalizeValueOnRead()
+    }
 }

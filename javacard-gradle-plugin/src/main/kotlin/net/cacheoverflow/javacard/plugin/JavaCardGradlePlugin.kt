@@ -79,12 +79,11 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.outputFolder.convention(appletOutputFolder)
         }
 
-        val globalPlatformFile = project.layout.buildDirectory.file("general-platform.jar") // TODO: Option over extension
         val gpDownloadTask = project.tasks.register<GlobalPlatformDownloadTask>("downloadGlobalPlatform") { spec ->
             spec.group = TASK_GROUP_ID
             spec.description = "Download the General Platform tooling required for future tooling use"
 
-            spec.outputFile.convention(globalPlatformFile)
+            spec.outputFile.convention(extension.globalPlatform.executableFile)
         }
 
         val gpInstallTask = project.tasks.register<GlobalPlatformInstallTask>("installApplet") { spec ->
@@ -94,7 +93,7 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.dependsOn(gpDownloadTask, compileAppletTask)
             spec.applets.convention(extension.applets)
             spec.appletId.convention(extension.appletId)
-            spec.toolFile.convention(globalPlatformFile)
+            spec.toolFile.convention(extension.globalPlatform.executableFile)
             spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
                 outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("${namespace.split(".").last()}.cap")
             })
@@ -108,7 +107,7 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.dependsOn(gpDownloadTask)
             spec.applets.convention(extension.applets)
             spec.appletId.convention(extension.appletId)
-            spec.toolFile.convention(globalPlatformFile)
+            spec.toolFile.convention(extension.globalPlatform.executableFile)
             spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
                 outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("${namespace.split(".").last()}.cap")
             })
