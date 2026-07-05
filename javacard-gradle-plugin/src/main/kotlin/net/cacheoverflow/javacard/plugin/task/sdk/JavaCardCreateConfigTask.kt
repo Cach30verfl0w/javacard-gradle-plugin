@@ -62,7 +62,7 @@ abstract class JavaCardCreateConfigTask : DefaultTask() {
 
     init {
         val extension = project.extensions.getByType(JavaCardExtension::class.java)
-        appVersion.convention(project.version.toString()).finalizeValueOnRead() // TODO: Only major.minor is allowed
+        appVersion.convention(project.version.toString().toMajorMinorFormat()).finalizeValueOnRead()
         targetVersion.convention(extension.cardVersion).finalizeValueOnRead()
         namespace.convention(extension.namespace).finalizeValueOnRead()
         appletId.convention(extension.appletId).finalizeValueOnRead()
@@ -95,6 +95,14 @@ abstract class JavaCardCreateConfigTask : DefaultTask() {
         val className = "${namespace.get()}.${name}"
         logger.lifecycle("Creating a new applet with ID '$appletId' for class '$className'")
         return "-applet $appletId $className"
+    }
+
+    private fun String.toMajorMinorFormat(): String {
+        val regex = """^(\d+)\.(\d+)""".toRegex()
+        val match = regex.find(this)
+
+        return match?.let { "${it.groupValues[1]}.${it.groupValues[2]}" }
+            ?: throw IllegalArgumentException("Version '$this' is not matching the 'major.minor' version format.")
     }
 
 }

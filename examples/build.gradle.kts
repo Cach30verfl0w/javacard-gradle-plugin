@@ -25,7 +25,7 @@ plugins {
 }
 
 group = "net.cacheoverflow.javacard"
-version = "1.0"
+version = "1.0.0"
 
 dependencies {
     val sdkFolder = Paths.get(layout.projectDirectory.dir("sdks/jc320v26.0_kit").asFile.absolutePath)
