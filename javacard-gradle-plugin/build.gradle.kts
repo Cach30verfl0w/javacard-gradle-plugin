@@ -22,10 +22,17 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.gradle.compatibility)
     alias(libs.plugins.gradle.publish)
+    alias(libs.plugins.mavenPublish)
+    signing
 }
 
+val pluginDisplayName: String = property("project.plugin.displayName").toString()
+val pluginDescription: String = property("project.plugin.description").toString()
+val pluginWebsite: String = property("project.plugin.website").toString()
+val pluginId: String = property("project.plugin.id").toString()
+
 group = property("project.group").toString()
-version = libs.versions.javaCardGradle.get().toString()
+version = libs.versions.javaCardGradle.get()
 
 buildConfig {
     buildConfigField("PLUGIN_DISPLAY_NAME", property("project.plugin.displayName").toString())
@@ -40,16 +47,61 @@ dependencies {
     implementation(kotlin("stdlib"))
 }
 
+signing {
+    useGpgCmd()
+    isRequired = false
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    println(name)
+    coordinates(group.toString(), name, version.toString())
+
+    pom {
+        name = pluginDisplayName
+        description = pluginDescription
+        url = pluginWebsite
+
+        licenses {
+            license {
+                name = "Apache License, version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "cach30verfl0w"
+                name = "Cedric Hammes"
+                email = "contact@cach30verfl0w.net"
+                url = "https://cach30verfl0w.net"
+                timezone = "Europe/Berlin"
+            }
+        }
+        scm {
+            val repositoryDomain = property("project.repository.domain")?.toString()
+            val repositoryUsername = property("project.repository.username")?.toString()
+            val repositoryName = property("project.repository.name")?.toString()
+            if (repositoryDomain != null && repositoryUsername != null && repositoryName != null) {
+                logger.lifecycle("Configure SCM connection...")
+                url = "https://$repositoryDomain/$repositoryUsername/$repositoryName"
+                connection = "scm:git:git://$repositoryDomain/$repositoryUsername/$repositoryName.git"
+                developerConnection = "scm:git:ssh://git@$repositoryDomain/$repositoryUsername/$repositoryName.git"
+            }
+        }
+    }
+}
+
 gradlePlugin {
-    website = property("project.plugin.website").toString()
-    vcsUrl = property("project.plugin.website").toString()
+    website = pluginWebsite
+    vcsUrl = pluginWebsite
 
     plugins {
-        create(property("project.plugin.id").toString()) {
-            id = property("project.plugin.id").toString()
+        create(pluginId) {
+            id = pluginId
             implementationClass = "$group.plugin.JavaCardGradlePlugin"
-            description = property("project.plugin.description").toString()
-            displayName = property("project.plugin.displayName").toString()
+            description = pluginDescription
+            displayName = pluginDisplayName
             version = version.toString()
             tags.set(listOf("javacard", "jcard", "smartcard", "sdk"))
 
