@@ -82,14 +82,14 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
 
         val gpDownloadTask = project.tasks.register<GlobalPlatformDownloadTask>("downloadGlobalPlatform") { spec ->
             spec.group = TASK_GROUP_ID
-            spec.description = "Download the General Platform tooling required for future tooling use"
+            spec.description = "Download the GlobalPlatform tooling required for future tooling use"
 
             spec.outputFile.convention(extension.globalPlatform.executableFile)
         }
 
         val gpInstallTask = project.tasks.register<GlobalPlatformInstallTask>("installApplet") { spec ->
             spec.group = TASK_GROUP_ID
-            spec.description = "Install the applet using GeneralPlatformPro to the card"
+            spec.description = "Install the applet using GlobalPlatform to the card"
 
             spec.dependsOn(gpDownloadTask, compileAppletTask)
             spec.applets.convention(extension.applets)
@@ -102,7 +102,7 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
 
         val gpDeleteTask = project.tasks.register<GlobalPlatformDeleteTask>("deleteApplet") { spec ->
             spec.group = TASK_GROUP_ID
-            spec.description = "Delete the applet using GeneralPlatformPro from the card if installed"
+            spec.description = "Delete the applet using GlobalPlatform from the card if installed"
 
             spec.dependsOn(gpDownloadTask)
             spec.applets.convention(extension.applets)
