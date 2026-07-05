@@ -21,10 +21,11 @@ plugins {
     `java-gradle-plugin`
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.gradle.compatibility)
+    alias(libs.plugins.gradle.publish)
 }
 
 group = property("project.group").toString()
-version = libs.versions.javaCardGradle.toString()
+version = libs.versions.javaCardGradle.get().toString()
 
 buildConfig {
     buildConfigField("PLUGIN_DISPLAY_NAME", property("project.plugin.displayName").toString())
@@ -40,6 +41,9 @@ dependencies {
 }
 
 gradlePlugin {
+    website = property("project.plugin.website").toString()
+    vcsUrl = property("project.plugin.website").toString()
+
     plugins {
         create(property("project.plugin.id").toString()) {
             id = property("project.plugin.id").toString()
