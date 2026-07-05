@@ -17,12 +17,14 @@
 package net.cacheoverflow.javacard.plugin.task.simulator
 
 import net.cacheoverflow.javacard.plugin.task.AbstractDownloadTask
+import org.gradle.api.tasks.CacheableTask
 import java.net.URI
 
 /**
  * @author Cedric Hammes
  * @since  05/07/2026
  */
+@CacheableTask
 abstract class JavaCardSimulatorDownloadTask : AbstractDownloadTask() {
     init {
         version.convention(DEFAULT_VERSION).finalizeValueOnRead()

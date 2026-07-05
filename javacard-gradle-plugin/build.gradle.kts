@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 /*
  * Copyright 2026 Cedric Hammes <contact@cach30verfl0w.net>
  *
@@ -16,8 +18,9 @@
 
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.buildConfig)
     `java-gradle-plugin`
+    alias(libs.plugins.buildConfig)
+    alias(libs.plugins.gradle.compatibility)
 }
 
 group = property("project.group").toString()
@@ -44,8 +47,13 @@ gradlePlugin {
             description = property("project.plugin.description").toString()
             displayName = property("project.plugin.displayName").toString()
             version = version.toString()
-
             tags.set(listOf("javacard", "jcard", "smartcard", "sdk"))
+
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }

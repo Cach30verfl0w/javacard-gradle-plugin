@@ -1,9 +1,14 @@
 [versions]
 javaCardGradle = "0.0.1"
 kotlin = "2.4.0" # https://github.com/JetBrains/kotlin/releases
+
+# Plugins
 buildConfig = "6.0.10" # https://github.com/gmazzo/gradle-buildconfig-plugin/releases
+gradle-compatibility = "1.0.0" # https://github.com/gradle/gradle-plugin-compatibility-plugin/releases
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 javaCardGradle = { id = "net.cacheoverflow.gradle.javacard", version.ref = "javaCardGradle" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
+
+gradle-compatibility = { id = "org.gradle.plugin-compatibility", version.ref = "gradle-compatibility" }
