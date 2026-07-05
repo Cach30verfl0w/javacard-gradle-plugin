@@ -96,7 +96,7 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.appletId.convention(extension.appletId)
             spec.toolFile.convention(globalPlatformFile)
             spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
-                outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("example.cap")
+                outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("${namespace.split(".").last()}.cap")
             })
         }
 
@@ -110,7 +110,7 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.appletId.convention(extension.appletId)
             spec.toolFile.convention(globalPlatformFile)
             spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
-                outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("example.cap")
+                outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("${namespace.split(".").last()}.cap")
             })
         }
 
