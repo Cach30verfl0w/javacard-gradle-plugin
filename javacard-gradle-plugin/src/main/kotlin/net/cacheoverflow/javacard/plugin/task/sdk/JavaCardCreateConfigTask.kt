@@ -93,7 +93,7 @@ abstract class JavaCardCreateConfigTask : DefaultTask() {
     private fun JavaCardApplet.createAppletConfig(): String {
         val appletId = "${this@JavaCardCreateConfigTask.appletId.get()}:${String.format("0x%02X", appletId.get())}"
         val className = "${namespace.get()}.${name}"
-        logger.lifecycle("Creating a new applet with ID '$appletId' for class '$className")
+        logger.lifecycle("Creating a new applet with ID '$appletId' for class '$className'")
         return "-applet $appletId $className"
     }
 

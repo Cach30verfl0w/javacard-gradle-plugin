@@ -17,6 +17,7 @@
 package net.cacheoverflow.javacard.plugin
 
 import net.cacheoverflow.javacard.plugin.dsl.JavaCardExtension
+import net.cacheoverflow.javacard.plugin.task.gp.GlobalPlatformDeleteTask
 import net.cacheoverflow.javacard.plugin.task.gp.GlobalPlatformDownloadTask
 import net.cacheoverflow.javacard.plugin.task.gp.GlobalPlatformInstallTask
 import net.cacheoverflow.javacard.plugin.task.sdk.JavaCardCompileAppletTask
@@ -91,6 +92,22 @@ abstract class JavaCardGradlePlugin : Plugin<Project> {
             spec.description = "Install the applet using GeneralPlatformPro to the card"
 
             spec.dependsOn(gpDownloadTask, compileAppletTask)
+            spec.applets.convention(extension.applets)
+            spec.appletId.convention(extension.appletId)
+            spec.toolFile.convention(globalPlatformFile)
+            spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
+                outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("example.cap")
+            })
+        }
+
+
+        val gpDeleteTask = project.tasks.register<GlobalPlatformDeleteTask>("deleteApplet") { spec ->
+            spec.group = TASK_GROUP_ID
+            spec.description = "Delete the applet using GeneralPlatformPro from the card if installed"
+
+            spec.dependsOn(gpDownloadTask)
+            spec.applets.convention(extension.applets)
+            spec.appletId.convention(extension.appletId)
             spec.toolFile.convention(globalPlatformFile)
             spec.appletFile.convention(appletOutputFolder.zip(extension.namespace) { outputFolder, namespace ->
                 outputFolder.dir(namespace.replace(".", "/")).dir("javacard").file("example.cap")

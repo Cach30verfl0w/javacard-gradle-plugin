@@ -21,7 +21,7 @@ import javacard.framework.Applet;
 import javacard.framework.ISO7816;
 import javacard.framework.ISOException;
 
-public class TestApplet extends Applet {
+public class Test1Applet extends Applet {
 
     // APDU Konstanten (entsprechen dem Host-Programm)
     private static final byte CLA = (byte) 0x80;
@@ -32,13 +32,13 @@ public class TestApplet extends Applet {
     private static final byte[] STATUS_DATA = {(byte) 0x4F, (byte) 0x4B}; // "OK"
 
     // Konstruktor: Wird bei der Installation aufgerufen
-    protected TestApplet(byte[] bArray, short bOffset, byte bLength) {
+    protected Test1Applet(byte[] bArray, short bOffset, byte bLength) {
         register(); // Registrierung bei der Java Card Runtime
     }
 
     // Instanzierungsmethode
     public static void install(byte[] bArray, short bOffset, byte bLength) {
-        new TestApplet(bArray, bOffset, bLength);
+        new Test1Applet(bArray, bOffset, bLength);
     }
 
     @Override
@@ -50,7 +50,6 @@ public class TestApplet extends Applet {
 
         byte[] buffer = apdu.getBuffer();
 
-        // Überprüfung des CLA
         if (buffer[ISO7816.OFFSET_CLA] != CLA) {
             ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
         }
@@ -58,10 +57,9 @@ public class TestApplet extends Applet {
         // Verzweigung basierend auf INS
         switch (buffer[ISO7816.OFFSET_INS]) {
             case INS_ECHO:
-                // Einfaches Echo: Empfangene Daten sind bereits im Buffer
-                // Wir senden sie direkt wieder zurück
-                short bytesRead = apdu.setIncomingAndReceive();
-                apdu.setOutgoingAndSend((short) ISO7816.OFFSET_CDATA, bytesRead);
+                apdu.setOutgoing();
+                apdu.setOutgoingLength((short) STATUS_DATA.length);
+                apdu.sendBytesLong(STATUS_DATA, (short) 0, (short) STATUS_DATA.length);
                 break;
 
             case INS_STATUS:

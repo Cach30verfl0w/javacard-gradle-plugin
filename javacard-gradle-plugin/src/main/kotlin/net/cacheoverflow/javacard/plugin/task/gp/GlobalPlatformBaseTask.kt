@@ -17,6 +17,7 @@
 package net.cacheoverflow.javacard.plugin.task.gp
 
 import net.cacheoverflow.javacard.plugin.dsl.JavaCardExtension
+import net.cacheoverflow.javacard.plugin.util.CombinedOutputStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -30,6 +31,9 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.process.ExecOperations
 import org.gradle.process.JavaExecSpec
+import java.io.ByteArrayOutputStream
+import java.io.OutputStream
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 /**
@@ -54,13 +58,15 @@ abstract class GlobalPlatformBaseTask : DefaultTask() {
         toolLauncher.convention(extension.toolLauncher)
     }
 
-    protected fun runTool(action: Action<JavaExecSpec>) {
+    protected fun runTool(hideOutput: Boolean = false, action: Action<JavaExecSpec>): String {
+        val returnedStream = ByteArrayOutputStream()
+        val combinedStream = CombinedOutputStream(if (hideOutput) null else System.out, returnedStream)
         val result = exec.javaexec { javaExecSpec ->
             javaExecSpec.mainClass.set("pro.javacard.gptool.GPTool")
 
             javaExecSpec.executable = toolLauncher.get().executablePath.asFile.absolutePath
             javaExecSpec.classpath = project.files(toolFile.get())
-            javaExecSpec.standardOutput = System.out
+            javaExecSpec.standardOutput = combinedStream
             javaExecSpec.errorOutput = System.err
             action.execute(javaExecSpec)
         }
@@ -68,6 +74,8 @@ abstract class GlobalPlatformBaseTask : DefaultTask() {
         if (result.exitValue != 0) {
             throw GradleException("Failed to run JavaCard SDK tool!");
         }
+
+        return String(returnedStream.toByteArray(), StandardCharsets.UTF_8)
     }
 
 }

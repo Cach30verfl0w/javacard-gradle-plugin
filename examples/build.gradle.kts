@@ -44,9 +44,8 @@ javaCard {
         create("TestApplet") {
             appletId.set(0x00)
         }
-    }
-
-    globalPlatform {
-
+        create("Test1Applet") {
+            appletId.set(0x01)
+        }
     }
 }

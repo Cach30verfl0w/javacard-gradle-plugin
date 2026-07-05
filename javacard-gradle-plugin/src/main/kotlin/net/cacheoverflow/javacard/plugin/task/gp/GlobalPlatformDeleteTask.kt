@@ -32,7 +32,7 @@ import org.gradle.api.tasks.TaskAction
  * @since  05/07/2026
  */
 @CacheableTask
-abstract class GlobalPlatformInstallTask : GlobalPlatformBaseTask() {
+abstract class GlobalPlatformDeleteTask : GlobalPlatformBaseTask() {
 
     @get:Input
     abstract val cardKey: Property<String>
@@ -53,24 +53,22 @@ abstract class GlobalPlatformInstallTask : GlobalPlatformBaseTask() {
 
     @TaskAction
     fun executeTask() {
-        runTool { spec ->
-            spec.args = listOf(
-                "-key", cardKey.get(),
-                "-load", appletFile.get().asFile.absolutePath,
-            )
-        }
-
         for (applet in applets.get().toSortedSet(compareBy { applet -> applet.appletId.get() })) {
             val appletId = "${appletId.get()}:${String.format("0x%02X", applet.appletId.get())}"
             logger.lifecycle("Loading applet '${applet.name}' with ID '$appletId'")
             runTool { spec ->
                 spec.args = listOf(
                     "-key", cardKey.get(),
-                    "-package", this.appletId.get().replace("0x", "").replace(":", ""),
-                    "-applet", appletId.replace("0x", "").replace(":", ""),
-                    "-create", appletId.replace("0x", "").replace(":", "")
+                    "-delete", appletId.replace("0x", "").replace(":", ""),
                 )
             }
+        }
+
+        runTool { spec ->
+            spec.args = listOf(
+                "-key", cardKey.get(),
+                "-delete", appletId.get().replace("0x", "").replace(":", ""),
+            )
         }
     }
 
